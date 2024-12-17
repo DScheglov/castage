@@ -49,6 +49,7 @@ export const {
 export interface Caster<T> extends CasterFn<T> {
   nullable: Caster<T | null>;
   optional: Caster<T | undefined>;
+  default(value: T, name?: string): Caster<T>;
   unpack: UnpackCasterFn<T>;
 
   validate<S extends T>(

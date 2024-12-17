@@ -55,6 +55,18 @@ const casterApi = <T>(
       },
     },
 
+    default: {
+      enumerable: true,
+      value: (value: T, typeName: string = `${name} | undefined`): Caster<T> =>
+        casterApi(
+          (data: unknown, path: string[] = []): Result<T, CastingError> =>
+            data === undefined
+              ? ok(value)
+              : casterFn(data, path).mapErr(replaceExpected(typeName, path)),
+          typeName,
+        ),
+    },
+
     validate: {
       enumerable: true,
       value: <S extends T>(

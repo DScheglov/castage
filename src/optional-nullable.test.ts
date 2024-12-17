@@ -5,7 +5,7 @@ import { OkType } from './types';
 import { int, number, string } from './primitives';
 import { struct } from './struct';
 import { tuple } from './tuple';
-import { castErr } from './casting-error';
+import { castErr, castingErr } from './casting-error';
 
 describe('optionals', () => {
   describe('int.optional', () => {
@@ -233,5 +233,64 @@ describe('optionals', () => {
         );
       },
     );
+  });
+
+  describe('int.default', () => {
+    const defaultInt = int.default(42);
+
+    type DefaultInt = OkType<typeof defaultInt>;
+
+    it('produces correct type', () => {
+      type Check = Expect<Equal<DefaultInt, number>>;
+
+      const result: Check = true;
+
+      expect(result).toEqual(true);
+    });
+
+    it('must have correct name', () => {
+      expect(defaultInt.name).toEqual('int | undefined');
+    });
+
+    it.each([
+      [Number.MIN_SAFE_INTEGER],
+      [-1000],
+      [0],
+      [1],
+      [-1],
+      [1000],
+      [Number.MAX_SAFE_INTEGER],
+    ])('returns ok(%p)', (value) => {
+      expect(defaultInt(value)).toEqual(ok(value));
+    });
+
+    it('returns default value for undefined', () => {
+      expect(defaultInt(undefined)).toEqual(ok(42));
+    });
+
+    it.each([
+      [false],
+      [true],
+      [{}],
+      [[]],
+      [''],
+      ['bla-bla'],
+      [1.5],
+      [123n],
+      [null],
+    ])('returns err(ERR_INVALID_VALUE_TYPE) for %p', (value) => {
+      expect.assertions(2);
+      const result = defaultInt(value);
+
+      expect(result.isErr).toEqual(true);
+      if (result.isErr) {
+        expect(result.error).toEqual(
+          castingErr('ERR_INVALID_VALUE_TYPE', [], {
+            expected: 'int | undefined',
+            received: value,
+          }),
+        );
+      }
+    });
   });
 });
