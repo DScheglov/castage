@@ -1,11 +1,16 @@
-import { unwrap, ok } from 'resultage';
-import { fromGuardAndTransform } from './engine';
-import { castingErr } from './casting-error';
-import { Caster, CasterFn, ERR_INVALID_VALUE } from './types';
-import { isArray } from './predicates';
+import { unwrap, ok, err } from 'resultage';
+import { fromGuardAndTransform } from './engine.js';
+import { castingErr } from './casting-error.js';
+import {
+  type Caster,
+  CastingError,
+  ERR_INVALID_VALUE,
+  ERR_INVALID_VALUE_TYPE,
+} from './types.js';
+import { isArray } from './predicates.js';
 
 export const array = <T>(
-  caster: CasterFn<T>,
+  caster: Caster<T>,
   name = `Array<${caster.name}>`,
 ): Caster<T[]> =>
   fromGuardAndTransform(
@@ -24,10 +29,24 @@ export const array = <T>(
       return ok(items);
     },
     name,
+    ERR_INVALID_VALUE_TYPE,
+    (list, path) => {
+      const items: T[] = [];
+      const errors: CastingError[] = [];
+
+      for (let i = 0; i < list.length; i += 1) {
+        caster.parse(list[i], [...path, i.toString()]).match(
+          (result) => items.push(result),
+          (err) => errors.push(...err),
+        );
+      }
+
+      return errors.length > 0 ? err(errors) : ok(items);
+    },
   );
 
 export const nonEmptyArray = <T>(
-  caster: CasterFn<T>,
+  caster: Caster<T>,
   name = `NonEmptyArray<${caster.name}>`,
 ): Caster<[T, ...T[]]> =>
   array(caster, name).validate(

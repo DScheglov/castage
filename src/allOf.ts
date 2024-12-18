@@ -1,7 +1,7 @@
 import { unwrap, ok } from 'resultage';
-import { fromGuardAndTransform } from './engine';
-import { Caster, CasterFn } from './types';
-import { isObject } from '.';
+import { fromGuardAndTransform } from './engine.js';
+import type { Caster, CasterFn } from './types';
+import { isObject } from './predicates.js';
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
   k: infer I,

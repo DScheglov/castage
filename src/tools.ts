@@ -4,11 +4,6 @@ export const propertyKeys = <T extends object>(obj: T) =>
     ...Object.getOwnPropertySymbols(obj),
   ] as (keyof T)[];
 
-export const allEntries = <T extends object>(
-  obj: T,
-): (readonly [keyof T, T[keyof T]])[] =>
-  propertyKeys(obj).map((key) => [key, obj[key]] as const);
-
 export const hasOwn = <
   T extends Record<PropertyKey, unknown>,
   K extends PropertyKey,

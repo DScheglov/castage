@@ -4,7 +4,7 @@ import { Result, ok } from 'resultage';
 import { struct } from './struct';
 import { number, string, boolean } from './primitives';
 import { CastingError, OkType } from './types';
-import { castErr } from './casting-error';
+import { castErr, castingErr } from './casting-error';
 
 describe('struct', () => {
   describe('simple struct', () => {
@@ -279,5 +279,86 @@ describe('struct', () => {
         );
       },
     );
+  });
+});
+
+describe('struct.parse', () => {
+  const User = struct(
+    {
+      name: string,
+      age: number,
+      isMarried: boolean,
+    },
+    'User',
+  );
+
+  it.each([
+    [
+      { name: 'John', age: 42, isMarried: false },
+      { name: 'John', age: 42, isMarried: false },
+    ],
+    [
+      { name: 'John', age: 42, isMarried: true },
+      { name: 'John', age: 42, isMarried: true },
+    ],
+  ])('returns ok(%p) for %j', (value, expected) => {
+    expect(User.parse(value, [])).toEqual(ok(expected));
+  });
+
+  it.each([
+    [{ name: 'John', age: 42 }, 'boolean', 'isMarried'],
+    [{ name: 'John', isMarried: true }, 'number', 'age'],
+    [{ age: 42, isMarried: true }, 'string', 'name'],
+  ])('returns err(ERR_MISSING_VALUE) for %j', (value, expected, missing) => {
+    expect.assertions(3);
+
+    const result = User.parse(value, []);
+
+    expect(result.isErr).toBe(true);
+
+    if (result.isErr) {
+      expect(result.error).toHaveLength(1);
+      expect(result.error[0]).toEqual(
+        castingErr('ERR_MISSING_VALUE', [missing], { expected }),
+      );
+    }
+  });
+
+  it.each([
+    [
+      {},
+      [
+        castingErr('ERR_MISSING_VALUE', ['name'], { expected: 'string' }),
+        castingErr('ERR_MISSING_VALUE', ['age'], { expected: 'number' }),
+        castingErr('ERR_MISSING_VALUE', ['isMarried'], { expected: 'boolean' }),
+      ],
+    ],
+    [
+      { name: 1, age: '42' },
+      [
+        castingErr('ERR_INVALID_VALUE_TYPE', ['name'], {
+          expected: 'string',
+          received: 1,
+        }),
+        castingErr('ERR_INVALID_VALUE_TYPE', ['age'], {
+          expected: 'number',
+          received: '42',
+        }),
+        castingErr('ERR_MISSING_VALUE', ['isMarried'], {
+          expected: 'boolean',
+        }),
+      ],
+    ],
+  ])('returns list of errors for %j', (value, errors) => {
+    expect.assertions(3);
+
+    const result = User.parse(value, []);
+
+    expect(result.isErr).toBe(true);
+
+    if (result.isErr) {
+      expect(result.error).toHaveLength(errors.length);
+      expect(result.error).toEqual(errors);
+    }
   });
 });

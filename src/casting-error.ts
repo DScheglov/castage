@@ -1,6 +1,11 @@
 import { Result, err } from 'resultage';
-import { $castingError, CastingError, CastingErrorCode, Extra } from './types';
-import { hasOwn } from './tools';
+import {
+  $castingError,
+  type CastingError,
+  type CastingErrorCode,
+  type Extra,
+} from './types.js';
+import { hasOwn } from './tools.js';
 
 export const isCastingError = (error: unknown): error is CastingError =>
   error != null &&

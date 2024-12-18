@@ -10,7 +10,7 @@ export const CastingErrorEnum = {
 export type CastingErrorCode =
   (typeof CastingErrorEnum)[keyof typeof CastingErrorEnum];
 
-export const $castingError = Symbol.for('cast::CastingError');
+export const $castingError = Symbol.for('castage::CastingError');
 
 export type Extra = {
   expected: string;
@@ -28,6 +28,10 @@ export interface CastingError extends Error {
 
 export interface CasterFn<T> {
   (value: unknown, path?: string[]): Result<T, CastingError>;
+}
+
+export interface ParserFn<T> {
+  (value: unknown, path?: string[]): Result<T, CastingError[]>;
 }
 
 export interface UnpackCasterFn<T> {
@@ -74,6 +78,8 @@ export interface Caster<T> extends CasterFn<T> {
     casterFn: (data: T, path?: string[]) => Result<S, CastingError>,
     name?: string,
   ): Caster<S>;
+
+  parse(value: unknown, path?: string[]): Result<T, CastingError[]>;
 }
 
 export type RequiredKeys<T> = {

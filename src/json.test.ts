@@ -127,3 +127,47 @@ describe('jsonStruct', () => {
     }
   });
 });
+
+describe('jsonArray', () => {
+  const jsonArrayCaster = json.array(string);
+
+  it('parses valid JSON array', () => {
+    expect.assertions(2);
+    const value = ['value'];
+    const result = jsonArrayCaster(JSON.stringify(value));
+    expect(result.isOk).toBe(true);
+    if (result.isOk) {
+      expect(result.value).toEqual(value);
+    }
+  });
+
+  it('returns an error for non-array JSON', () => {
+    expect.assertions(2);
+    const value = 'string';
+    const result = jsonArrayCaster(JSON.stringify(value));
+    expect(result.isErr).toBe(true);
+    if (result.isErr) {
+      expect(result.error).toEqual(
+        castingErr(ERR_INVALID_VALUE_TYPE, ['::JSON'], {
+          expected: 'JsonArray(string)',
+          received: value,
+        }),
+      );
+    }
+  });
+
+  it('returns an error for invalid JSON string', () => {
+    expect.assertions(2);
+    const result = jsonArrayCaster('invalid json');
+    expect(result.isErr).toBe(true);
+    if (result.isErr) {
+      expect(result.error).toEqual(
+        castingErr(ERR_INVALID_VALUE, [], {
+          expected: 'JSON',
+          received: 'invalid json',
+          reason: 'Unexpected token \'i\', "invalid json" is not valid JSON',
+        }),
+      );
+    }
+  });
+});

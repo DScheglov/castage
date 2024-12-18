@@ -4,7 +4,7 @@ import { int, string, number } from './primitives';
 import { array, nonEmptyArray } from './array';
 import { ERR_INVALID_VALUE, ERR_INVALID_VALUE_TYPE } from './types';
 import { isInteger, isNumber } from './predicates';
-import { castErr } from './casting-error';
+import { castErr, castingErr } from './casting-error';
 
 describe('array', () => {
   describe('array(int)', () => {
@@ -129,6 +129,59 @@ describe('array', () => {
           received: value[idx],
         }),
       );
+    });
+  });
+});
+
+describe('array.parse', () => {
+  describe('array(int)', () => {
+    const arrayType = array(int);
+    it.each([[[]], [[0]], [[1, 2, 3]]])('returns ok(%p)', (value) => {
+      expect(arrayType.parse(value, [])).toEqual(ok(value));
+    });
+
+    it.each([false, true, '', '0', '1', '1.5', {}, null, undefined])(
+      'returns err(ERR_INVALID_VALUE_TYPE[]) for %j',
+      (value) => {
+        expect.assertions(3);
+        const result = arrayType.parse(value, []);
+
+        expect(result.isErr).toBe(true);
+        if (result.isErr) {
+          expect(result.error).toHaveLength(1);
+          expect(result.error[0]).toEqual(
+            castingErr(ERR_INVALID_VALUE_TYPE, [], {
+              expected: 'Array<int>',
+              received: value,
+            }),
+          );
+        }
+      },
+    );
+
+    it.each([
+      [[0, 1, 2, 4, ''], 4],
+      [[1.5], 0],
+      [[{}], 0],
+      [[[]], 0],
+      [[null], 0],
+      [[undefined], 0],
+    ])('returns err(ERR_INVALID_VALUE_TYPE[]) for %j', (value, failedIndex) => {
+      expect.assertions(3);
+
+      const result = arrayType.parse(value, ['list']);
+
+      expect(result.isErr).toBe(true);
+
+      if (result.isErr) {
+        expect(result.error).toHaveLength(1);
+        expect(result.error[0]).toEqual(
+          castingErr(ERR_INVALID_VALUE_TYPE, ['list', failedIndex.toString()], {
+            expected: 'int',
+            received: value[failedIndex],
+          }),
+        );
+      }
     });
   });
 });

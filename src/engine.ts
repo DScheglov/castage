@@ -1,4 +1,4 @@
-import { Result, expect, ok } from 'resultage';
+import { Result, err, expect, ok } from 'resultage';
 import {
   CastingError,
   CastingErrorCode,
@@ -6,13 +6,15 @@ import {
   Caster,
   ERR_INVALID_VALUE,
   ERR_INVALID_VALUE_TYPE,
-} from './types';
+  ParserFn,
+} from './types.js';
 
-import { replaceExpected, castingErr, castErr } from './casting-error';
+import { replaceExpected, castingErr, castErr } from './casting-error.js';
 
-const casterApi = <T>(
+export const casterApi = <T>(
   casterFn: CasterFn<T>,
   name: string = casterFn.name,
+  parser?: ParserFn<T>,
 ): Caster<T> =>
   Object.defineProperties(casterFn.bind(null) as Caster<T>, {
     name: {
@@ -141,6 +143,17 @@ const casterApi = <T>(
           typeName,
         ),
     },
+
+    parse: {
+      enumerable: true,
+      value: (
+        value: unknown,
+        path: string[] = [],
+      ): Result<T, CastingError[]> =>
+        typeof parser === 'function'
+          ? parser(value, path)
+          : casterFn(value, path).mapErr((err) => [err]),
+    },
   });
 
 export const fromGuard = <T>(
@@ -161,6 +174,7 @@ export const fromGuardAndTransform = <T, S>(
   transform: (value: T, path: string[]) => Result<S, CastingError>,
   name: string = transform.name,
   errorCode: CastingErrorCode = ERR_INVALID_VALUE_TYPE,
+  parser?: (value: T, path: string[]) => Result<S, CastingError[]>,
 ): Caster<S> =>
   casterApi(
     (value, path = []) =>
@@ -168,6 +182,17 @@ export const fromGuardAndTransform = <T, S>(
         ? transform(value, path)
         : castErr(errorCode, path, { expected: name, received: value }),
     name,
+    parser !== undefined
+      ? (value, path = []) =>
+          guard(value)
+            ? parser(value, path)
+            : err([
+                castingErr(errorCode, path, {
+                  expected: name,
+                  received: value,
+                }),
+              ])
+      : undefined,
   );
 
 export const is =

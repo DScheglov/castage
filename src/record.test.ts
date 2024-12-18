@@ -1,9 +1,9 @@
 import { describe, it, expect } from '@jest/globals';
-import { ok } from 'resultage';
+import { err, ok } from 'resultage';
 import { number, string } from './primitives';
 import { values } from './values';
 import { record } from './record';
-import { castErr } from './casting-error';
+import { castErr, castingErr } from './casting-error';
 
 describe('record', () => {
   describe('record(string, string)', () => {
@@ -97,5 +97,62 @@ describe('record', () => {
         }),
       );
     });
+  });
+});
+
+describe('record.parse', () => {
+  const recordType = record(string, string);
+
+  it.each([
+    [{}, {}],
+    [{ 0: '0' }, { 0: '0' }],
+    [{ 1: '1' }, { 1: '1' }],
+    [
+      { 1: '1', 2: '2', 3: '3' },
+      { 1: '1', 2: '2', 3: '3' },
+    ],
+  ])('returns ok(%p) for %j', (value, expected) => {
+    expect(recordType.parse(value, [])).toEqual(ok(expected));
+  });
+
+  it.each([
+    [false],
+    [true],
+    [''],
+    ['0'],
+    ['1'],
+    ['1.5'],
+    [[]],
+    [[1]],
+    [[1, 2, 3]],
+    [null],
+    [undefined],
+  ])('returns err([ERR_INVALID_VALUE_TYPE]) for %j', (value) => {
+    expect(recordType.parse(value, [])).toEqual(
+      err([
+        castingErr('ERR_INVALID_VALUE_TYPE', [], {
+          expected: 'Record<string, string>',
+          received: value,
+        }),
+      ]),
+    );
+  });
+
+  it.each([
+    [
+      { x: 1, y: 2 },
+      [
+        castingErr('ERR_INVALID_VALUE_TYPE', ['x'], {
+          expected: 'string',
+          received: 1,
+        }),
+        castingErr('ERR_INVALID_VALUE_TYPE', ['y'], {
+          expected: 'string',
+          received: 2,
+        }),
+      ],
+    ],
+  ])('returns list of errors for $j', (value, expected) => {
+    expect(recordType.parse(value, [])).toEqual(err(expected));
   });
 });

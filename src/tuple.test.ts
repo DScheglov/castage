@@ -5,7 +5,7 @@ import { number, string } from './primitives';
 
 import { tuple } from './tuple';
 import { OkType } from './types';
-import { castErr } from './casting-error';
+import { castErr, castingErr } from './casting-error';
 
 describe('tuple', () => {
   describe('tuple(string, number)', () => {
@@ -127,5 +127,93 @@ describe('tuple', () => {
         }),
       );
     });
+  });
+});
+
+describe('tuple.parse', () => {
+  const coords2d = tuple(number, number);
+
+  it.each([
+    [
+      [0, 0],
+      [0, 0],
+    ],
+    [
+      [1, 2],
+      [1, 2],
+    ],
+    [
+      [-1, -2],
+      [-1, -2],
+    ],
+    [
+      [1.5, 2.5],
+      [1.5, 2.5],
+    ],
+  ])('returns ok(%p) for %p', (value, expected) => {
+    expect(coords2d.parse(value, [])).toEqual(ok(expected));
+  });
+
+  it.each([
+    [0],
+    [1],
+    [-1],
+    [1.5],
+    ['0'],
+    ['1'],
+    ['-1'],
+    ['1.5'],
+    [true],
+    [false],
+    [{}],
+    [null],
+    [undefined],
+  ])('returns err(ERR_INVALID_VALUE_TYPE) for %p', (value) => {
+    expect.assertions(3);
+    const result = coords2d.parse(value, []);
+
+    expect(result.isErr).toBe(true);
+
+    if (result.isErr) {
+      expect(result.error).toHaveLength(1);
+      expect(result.error[0]).toEqual(
+        castingErr('ERR_INVALID_VALUE_TYPE', [], {
+          expected: '[number, number]',
+          received: value,
+        }),
+      );
+    }
+  });
+
+  it.each([
+    [
+      [],
+      [
+        castingErr('ERR_MISSING_VALUE', ['0'], { expected: 'number' }),
+        castingErr('ERR_MISSING_VALUE', ['1'], { expected: 'number' }),
+      ],
+    ],
+    [
+      [, '0'],
+      [
+        castingErr('ERR_INVALID_VALUE_TYPE', ['0'], {
+          expected: 'number',
+          received: undefined,
+        }),
+        castingErr('ERR_INVALID_VALUE_TYPE', ['1'], {
+          expected: 'number',
+          received: '0',
+        }),
+      ],
+    ],
+  ])('returns err(errors) for %p', (value, errors) => {
+    expect.assertions(3);
+    const result = coords2d.parse(value, []);
+
+    expect(result.isErr).toBe(true);
+    if (result.isErr) {
+      expect(result.error).toHaveLength(errors.length);
+      expect(result.error).toEqual(errors);
+    }
   });
 });

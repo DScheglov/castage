@@ -1,4 +1,4 @@
-import { fromGuard } from './engine';
+import { fromGuard } from './engine.js';
 import {
   isInteger,
   isString,
@@ -7,7 +7,7 @@ import {
   isObject,
   isNull,
   isUndefined,
-} from './predicates';
+} from './predicates.js';
 
 export const int = fromGuard(isInteger, 'int');
 export const string = fromGuard(isString, 'string');

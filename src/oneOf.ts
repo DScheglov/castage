@@ -1,11 +1,11 @@
-import { fromGuardAndTransform } from './engine';
-import { castErr } from './casting-error';
+import { fromGuardAndTransform } from './engine.js';
+import { castErr } from './casting-error.js';
 import {
   Caster,
   CasterFn,
   CastingError,
   ERR_INVALID_VALUE_TYPE,
-} from './types';
+} from './types.js';
 
 export const oneOf = <T extends unknown[]>(
   ...casters: {
