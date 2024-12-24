@@ -106,8 +106,8 @@ export const casterApi = <T>(
       enumerable: true,
       value:
         <S, E>(
-          errMatcher: (err: CastingError) => E,
           okMatcher: (data: T) => S,
+          errMatcher: (err: CastingError) => E,
         ) =>
         (value: unknown, path: string[] = []): S | E =>
           casterFn(value, path).match(okMatcher, errMatcher),
