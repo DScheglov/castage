@@ -59,7 +59,15 @@ export class CastingException extends Error implements CastingError {
   }
 
   toString(): string {
-    return `${this.name}:\n${this.message}`;
+    return `${this.name}: ${this.message}`;
+  }
+
+  toJSON() {
+    return {
+      code: this.code,
+      path: this.path,
+      extra: this.extra,
+    };
   }
 }
 
