@@ -21,10 +21,10 @@
   "author": "Dmytro Shchehlov <dmitry.scheglov@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DScheglov/resultage"
+    "url": "git+https://github.com/DScheglov/castage"
   },
   "bugs": {
-    "url": "https://github.com/DScheglov/resultage/issues"
+    "url": "https://github.com/DScheglov/castage/issues"
   },
   "license": "MIT",
   "devDependencies": {
