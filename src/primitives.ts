@@ -1,13 +1,15 @@
+import { ok } from 'resultage';
 import { fromGuard } from './engine.js';
 import {
-  isInteger,
-  isString,
   isBoolean,
+  isInteger,
+  isNull,
   isNumber,
   isObject,
-  isNull,
+  isString,
   isUndefined,
 } from './predicates.js';
+import { CasterFn } from './types.js';
 
 export const int = fromGuard(isInteger, 'int');
 export const string = fromGuard(isString, 'string');
@@ -17,3 +19,4 @@ export const object = fromGuard(isObject, 'object');
 export const nill = fromGuard(isNull, 'null');
 export const undef = fromGuard(isUndefined, 'undefined');
 export const any = fromGuard((value): value is any => true, 'any');
+export const unknown: CasterFn<unknown> = (value: unknown) => ok(value);

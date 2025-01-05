@@ -288,4 +288,33 @@ describe('primitives', () => {
       expect(t.any(value)).toEqual(ok(value));
     });
   });
+
+  describe('unknown', () => {
+    it.each([
+      false,
+      true,
+      '',
+      '0',
+      '1',
+      '1.5',
+      'true',
+      'false',
+      {},
+      [],
+      null,
+      undefined,
+      Number.NEGATIVE_INFINITY,
+      Number.MIN_SAFE_INTEGER,
+      -1000,
+      -1,
+      0,
+      1,
+      1.5,
+      1000,
+      Number.MAX_SAFE_INTEGER,
+      Number.POSITIVE_INFINITY,
+    ])('returns ok(%p)', (value) => {
+      expect(t.unknown(value)).toEqual(ok(value));
+    });
+  });
 });
