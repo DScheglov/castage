@@ -72,6 +72,8 @@ export interface Caster<T> extends CasterFn<T> {
     errMatcher: (err: CastingError) => E,
   ): UnpackCasterFn<S | E>;
 
+  unpackOr<E>(handleError: (err: CastingError) => E): UnpackCasterFn<T | E>;
+
   map<S>(transform: (data: T) => S, name?: string): Caster<S>;
 
   chain<S>(

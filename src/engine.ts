@@ -102,6 +102,14 @@ export const casterApi = <T>(
           ),
     },
 
+    unpackOr: {
+      enumerable: true,
+      value:
+        <E>(handleError: (err: CastingError) => E) =>
+        (value: unknown, path: string[] = []): T | E =>
+          casterFn(value, path).unwrapOrElse(handleError),
+    },
+
     match: {
       enumerable: true,
       value:
