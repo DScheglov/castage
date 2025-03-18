@@ -56,8 +56,6 @@ interface Caster<T> extends CasterFn<T> {
 
 Where the `Result` type is imported from the [`resultage`](https://www.npmjs.com/package/resultage) package.
 
-
-
 #### `CastingError`
 
 Describes an error encountered during the casting process.
@@ -163,9 +161,24 @@ if (result3.isErr) {
 }
 ```
 
+## `allOf<T>(...casters: CasterFn<T>[])`
 
+Validates a value against multiple possible types.
 
+```ts
+import { allOf, struct, int, string } from 'castage';
 
+const mixedTypeCaster = allOf(
+  struct({ id: int }),
+  struct({ name: string })
+);
+
+const result = mixedTypeCaster({ id: 42 });
+if (result.isOk) {
+  console.log(result1.value); // { id: 42 }
+} else {
+  console.error(result.error); // CastingError
+}
 ---
 
 ## Error Handling

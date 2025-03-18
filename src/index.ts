@@ -6,6 +6,7 @@ export * from './record.js';
 export * from './struct.js';
 export * from './tuple.js';
 export * from './oneOf.js';
+export * from './allOf.js';
 export * from './values.js';
 export * from './json.js';
 export * from './text.js';
