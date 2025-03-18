@@ -2,11 +2,11 @@ import { err, ok } from 'resultage';
 import { fromGuardAndTransform } from './engine.js';
 import { castingErr } from './casting-error.js';
 import {
-  Caster,
-  CastingError,
+  type Caster,
+  type CastingError,
   ERR_INVALID_VALUE_TYPE,
   ERR_MISSING_VALUE,
-  UndefinedAsOptional,
+  type UndefinedAsOptional,
 } from './types.js';
 import { isObject } from './predicates.js';
 import { hasOwn, propertyKeys } from './tools.js';
