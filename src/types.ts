@@ -82,6 +82,8 @@ export interface Caster<T> extends CasterFn<T> {
   ): Caster<S>;
 
   parse(value: unknown, path?: string[]): Result<T, CastingError[]>;
+
+  assert(value: unknown, path?: string[]): asserts value is T;
 }
 
 export type RequiredKeys<T> = {
@@ -99,3 +101,5 @@ export type UndefinedAsOptional<T> = Cp<
     [field in OptionalKeys<T>]?: T[field];
   }
 >;
+
+export type CastedBy<C> = C extends CasterFn<infer T> ? T : never;

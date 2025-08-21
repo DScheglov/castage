@@ -162,6 +162,13 @@ export const casterApi = <T>(
           ? parser(value, path)
           : casterFn(value, path).mapErr((err) => [err]),
     },
+
+    assert: {
+      enumerable: true,
+      value: (value: unknown): asserts value is T => {
+        casterFn(value).unwrap();
+      },
+    },
   });
 
 export const fromGuard = <T>(
