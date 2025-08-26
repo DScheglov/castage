@@ -56,9 +56,10 @@ describe('spec-rpc-case', () => {
 
   describe('SpecRpcInvalidParams', () => {
     it('casts a correct type', () => {
+      type T = c.CastedBy<typeof SpecRpcInvalidParams>;
       const check: Expect<
         Equal<
-          c.CastedBy<typeof SpecRpcInvalidParams>,
+          T,
           {
             reason: 'INVALID_PARAMS';
             errors: {

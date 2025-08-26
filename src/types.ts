@@ -94,7 +94,7 @@ export type OptionalKeys<T> = {
   [K in keyof T]-?: undefined extends T[K] ? K : never;
 }[keyof T];
 
-export type Cp<T> = { [K in keyof T]: T[K] };
+export type Cp<T> = { [K in keyof T]: T[K] } & {};
 
 export type UndefinedAsOptional<T> = Cp<
   { [field in RequiredKeys<T>]: T[field] } & {

@@ -29,6 +29,11 @@ export default tsLint.config(
     },
   },
   ...tsLint.configs.recommended,
+  {
+    rules: {
+      '@typescript-eslint/ban-types': 'off',
+    },
+  },
   prettierPlugin,
   {
     rules: {
