@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@jest/globals';
 import { Equal, Expect } from '@type-challenges/utils';
-import { Ok, Result, isOk, ok, unwrap } from 'resultage';
+import { type OkResult, Result, isOk, ok, unwrap } from 'resultage';
 import { int, number, string } from './primitives';
 import { CastingError, OkType } from './types';
 import { castErr } from './casting-error';
@@ -55,7 +55,7 @@ describe('validation', () => {
 
         expect(isOk(result)).toBe(true);
 
-        const value: Email = unwrap(result as Ok<Email>);
+        const value: Email = unwrap(result as OkResult<Email>);
 
         expect(value).toEqual(expected);
       },
